@@ -1,0 +1,164 @@
+1.
+CREATE DATABASE s290460;
+
+2.
+CREATE SCHEMA firma;
+
+3.
+
+4.
+CREATE TABLE pracownicy (
+	id_pracownika int NOT NULL, 
+	imie varchar(255),
+	nazwisko varchar(255),
+	adres varchar(255), 
+	telefon varchar(255)
+);
+
+ALTER TABLE pracownicy
+ADD CONSTRAINT PK_pracownicy PRIMARY KEY (id_pracownika);
+
+CREATE INDEX ind_nazwisko
+ON pracownicy(nazwisko);
+
+CREATE TABLE godziny(
+	id_godziny int NOT NULL,
+	data DATE, 
+	liczba_godzin int, 
+	id_pracownika int
+);
+
+ALTER TABLE godziny
+ADD CONSTRAINT PK_godziny PRIMARY KEY (id_godziny);
+
+ALTER TABLE godziny
+ADD CONSTRAINT FK_id_pracownika FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id_pracownika);
+
+	
+CREATE TABLE pensja_stanowisko(
+	id_pensji int NOT NULL,
+	stanowisko varchar(255),
+	kwota float
+);
+
+ALTER TABLE pensja_stanowisko
+ADD CONSTRAINT PK_pensja PRIMARY KEY (id_pensji);
+
+CREATE TABLE premia (
+	id_premii int NOT NULL,
+	rodzaj varchar(255),
+	kwota float
+);
+	
+ALTER TABLE premia
+ADD CONSTRAINT PK_premia PRIMARY KEY (id_premii);
+
+CREATE TABLE wynagrodzenie (
+	id_wynagrodzenia int NOT NULL,
+	data DATE,
+	id_pracownika int,
+	id_godziny int,
+	id_pensji int,
+	id_premii int 
+);
+
+ALTER TABLE wynagrodzenie
+ADD CONSTRAINT PK_wynagrodzenie PRIMARY KEY (id_wynagrodzenia);
+
+ALTER TABLE wynagrodzenie
+ADD CONSTRAINT FK_id_pracownika FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id_pracownika);
+
+ALTER TABLE wynagrodzenie
+ADD CONSTRAINT FK_id_godziny FOREIGN KEY (id_godziny) REFERENCES godziny(id_godziny);
+	
+ALTER TABLE wynagrodzenie
+ADD CONSTRAINT FK_id_pensji FOREIGN KEY (id_pensji) REFERENCES pensja_stanowisko(id_pensji);
+
+ALTER TABLE wynagrodzenie
+ADD CONSTRAINT FK_id_premii FOREIGN KEY (id_premii) REFERENCES premia(id_premii);
+	
+	
+	
+COMMENT ON TABLE pracownicy IS "pracownicy.";
+COMMENT ON TABLE godziny IS "godziny!";
+COMMENT ON TABLE pensja_stanowisko is "pensja stanowisko;";
+COMMENT ON TABLE premia IS "premia?";
+COMMENT ON TABLE 	wynagrodzenie is "wynagrodzenie...";
+	
+5. 
+ALTER TABLE godziny
+ADD miesiac int;
+
+ALTER TABLE godziny
+ADD tydzien int;
+
+ALTER TABLE wynagrodzenie
+ALTER COLUMN data varchar(255);
+
+INSERT INTO pracownicy
+VALUES 
+(1,"Adolf","A","aaa 1a","111 111 111"),
+(2,"Bartosz","B","bbb 2b", "222 222 222"),
+(3,"Czesław","C","ccc 3c", "333 333 333"),
+(4,"Dariusz", "D","ddd 4d","444 444 444"),
+(5,"Eryk","E","eee 5e","555 555 555"),
+(6,"Franciszek","F","fff 6f", "666 666 666"),
+(7,"Grzegorz", "G", "ggg 7g","777 777 777"),
+(8,"Horacy","H","hhh 8h", "888 888 888"),
+(9,"Ignacy", "I", "iii 9i","999 999 999"),
+(10,"Janusz", "J","jjj 10j","101 010 101");
+
+INSERT INTO godziny
+VALUES 
+(1,"2019-07-04",8,1),
+(2,"2010-06-04",8,1),
+(3,"2020-07-06",7,2),
+(4,"2019-01-03",3,3),
+(5,"2018-10-12",12,4),
+(6,"2019-07-04",10,5),
+(7,"2020-03-04",2,6),
+(8,"2021-04-04",5,7),
+(9,"2001-07-04",9,8),
+(10,"2100-02-04",9,10);
+
+
+INSERT INTO pensja_stanowisko
+VALUES 
+(1,"AAaaAA",1111.11),
+(2,"BBbbBB",2222.22),
+(3,"CCccCC",3333.33),
+(4,"DDddDD",4444.44),
+(5,"EEeeEE",5555.55),
+(6,"FFffFF",6666.66),
+(7,"GGggGG",7777.77),
+(8,"HHhhHH",8888.88),
+(9,"IIiiII",9999.99),
+(10,"JJjjJJ",10101.01);
+
+INSERT INTO premia
+VALUES 
+(1,"k",1111.11),
+(2,"l",2222.22),
+(3,"m",3333.33),
+(4,"n",4444.44),
+(5,"o",5555.55),
+(6,"p",6666.66),
+(7,"q",7777.77),
+(8,"r",8888.88),
+(9,"s",9999.99),
+(10,"brak",0);
+
+INSERT INTO wynagrodzenie
+VALUES
+(1,"2019-07-04",,),
+(2,"2010-06-04",,1),
+(3,"2020-07-06",,2),
+(4,"2019-01-03",,3),
+(5,"2018-10-12",,4),
+(6,"2019-07-04",,5),
+(7,"2020-03-04",,6),
+(8,"2021-04-04",,7),
+(9,"2001-07-04",,8),
+(10,"2100-02-04",,10);
+
+6. <<TBD>>
