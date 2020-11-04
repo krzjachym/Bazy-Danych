@@ -1,0 +1,29 @@
+--1.-
+--2.-
+--3.pliki zostały zaimportowane przy użyciu programu shp2pgsql-gui.exe
+--4.
+select a.gid,closest.gid,closest.dist from popp a
+cross join lateral
+(select gid, a.geom <-> b.geom as dist from majrivers as b order by a.geom <-> b.geom limit 1) as closest
+where closest.dist < 100000;
+
+
+--5.
+create table if not exists airportsNew as (select name, geom, elev from airports);
+
+
+insert into airportsNew 
+VALUES
+('airportB',
+(ST_Centroid(ST_ShortestLine((select geom from airportsNew order by ST_Y(geom) limit 1),(select geom from airportsNew order by ST_Y(geom) desc limit 1)))),
+420);
+
+--6.
+select geom from lakes where name = 'Iliamna Lake';
+select geom from airports where name = 'AMBLER';
+
+ST_ShortestLine((select geom from lakes where name = 'Iliamna Lake'),(select geom from airports where name = 'AMBLER'));
+
+[...]
+
+--7.
