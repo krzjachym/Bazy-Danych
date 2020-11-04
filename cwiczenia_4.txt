@@ -19,11 +19,13 @@ VALUES
 420);
 
 --6.
-select geom from lakes where name = 'Iliamna Lake';
-select geom from airports where name = 'AMBLER';
 
-ST_ShortestLine((select geom from lakes where name = 'Iliamna Lake'),(select geom from airports where name = 'AMBLER'));
-
-[...]
+select ST_area(ST_buffer(ST_ShortestLine((select geom from lakes where lakes.names = 'Iliamna Lake'),(select geom from airports where airports.name = 'AMBLER')),1000));
 
 --7.
+
+
+select a.vegdesc, sum(st_area(ST_Intersection(st_buffer(a.geom,0),st_buffer(b.geom,0))))+sum(st_area(ST_Intersection(st_buffer(a.geom,0),st_buffer(c.geom,0)))) as inter_area from trees as a
+join tundra as b on st_intersects(a.geom,b.geom)
+join swamp as c on st_intersects(a.geom,c.geom)
+group by a.vegdesc;
