@@ -1,0 +1,205 @@
+--1-5. W pliku Cwiczenie_2_Vertabelo.sql
+
+--6.
+
+INSERT INTO sklep.producenci (nazwa_producenta,mail,telefon)
+VALUES ("Producent A",'producentA@email.com','111 111 111'),
+("Producent B",'producentB@email.com','111 111 111'),
+("Producent C",'producentC@email.com','111 111 111'),
+("Producent D",'producentD@email.com','111 111 111'),
+("Producent E",'producentE@email.com','111 111 111'),
+("Producent F",'producentF@email.com','111 111 111'),
+("Producent G",'producentG@email.com','111 111 111'),
+("Producent H",'producentH@email.com','111 111 111'),
+("Producent I",'producentI@email.com','111 111 111'),
+("Producent J",'producentJ@email.com','111 111 111');
+
+INSERT INTO sklep.produkty (nazwa_produktu,cena,id_producenta)
+VALUES ('Produkt A','11.11',1),
+('Produkt B','12.11',2),
+('Produkt C','22.11',3),
+('Produkt D','33.11',4),
+('Produkt E','44.11',5),
+('Produkt F','55.11',6),
+('Produkt G','66.11',7),
+('Produkt H','77.11',8),
+('Produkt I','88.11',9),
+('Produkt J','99.11',10);
+
+INSERT INTO sklep.zamowienia (id_produktu,id_producenta,ilosc_produktow)
+VALUES (1,10,1),
+(2,9,2),
+(3,8,3),
+(4,7,4),
+(5,6,5),
+(6,5,6),
+(7,4,7),
+(8,3,8),
+(9,2,9),
+(10,1,11);
+
+-- punkty 7 - 8 wykonane w pgAdmin
+--7. RMB -> Backup...
+--8. RMB -> Delete/Drop
+--9. RMB -> Create -> Database , w polu Database -> backup_s290460
+	 RMB -> Restore... , wybieramy plik backup
+--10. RMB -> Properties , w polu Database zmieniamy nazwę
+
+--11.
+
+
+--a)
+SELECT CONCAT('Producent: ', nazwa_producenta, ', liczba_zamowien: ', COUNT(producenci.id_producenta), ', wartosc_zamowienia', liczba_sztuk*cena) FROM zamowienia INNER JOIN produkty ON zamowienia.id_produktu = produkty.id_produktu INNER JOIN producenci ON produkty.id_producenta = producenci.id_producenta GROUP BY producenci.id_producenta,zamowienia.liczba_sztuk,produkty.cena;
+
+--b)
+SELECT CONCAT('Produkt: ', nazwa_produktu, ', liczba_zamowien: ', COUNT(id_zamowienia)) FROM produkty INNER JOIN zamowienia ON produkty.id_produktu = zamowienia.id_produktu GROUP BY produkty.id_produktu;
+
+--c)
+SELECT * FROM produkty NATURAL JOIN zamowienia;
+
+--d) 
+ALTER TABLE zamowienia ADD COLUMN data;
+
+--e) 
+SELECT * FROM zamowienia WHERE EXTRACT(MONTH FROM data) = 01;
+
+--f) 
+SELECT EXTRACT(ISODOW FROM data),COUNT(id_zamowienia) FROM zamowienia GROUP BY EXTRACT(ISODOW FROM data) ORDER BY COUNT(id_zamowienia) DESC;
+
+--g) 
+SELECT nazwa_produktu,COUNT(produkty.id_produktu) FROM zamowienia INNER JOIN produkty ON zamowienia.id_produktu = produkty.id_produktu GROUP BY produkty.id_produktu ORDER BY COUNT(produkty.id_produktu) DESC;
+
+
+--12.
+
+--a) 
+SELECT CONCAT('Produkt ',UPPER(nazwa_produktu), ' którego producentem jest ', LOWER(nazwa_producenta), ', zamówiono ', COUNT(id_zamowienia), ' razy') AS opis FROM zamowienia INNER JOIN produkty ON zamowienia.id_produktu = produkty.id_produktu INNER JOIN producenci ON produkty.id_producenta = producenci.id_producenta GROUP BY nazwa_produktu,nazwa_producenta;
+
+--b) 
+SELECT * FROM zamowienia INNER JOIN produkty ON zamowienia.id_produktu = produkty.id_produktu WHERE (cena*liczba_sztuk) NOT IN (SELECT cena*liczba_sztuk FROM zamowienia INNER JOIN produkty ON zamowienia.id_produktu = produkty.id_produktu ORDER BY cena*liczba_sztuk DESC LIMIT 3);
+
+--c) 
+CREATE TABLE klienci(id_klienta SERIAL PRIMARY KEY,email VARCHAR(255) NOT NULL,numer_telefonu VARCHAR(255) NOT NULL);
+
+--d) 
+ALTER TABLE zamowienia ADD id_klienta INT;
+ALTER TABLE zamowienia ADD CONSTRAINT fk_zamowienia_klienci FOREIGN KEY (id_klienta) REFERENCES klienci(id_klienta);
+
+INSERT INTO sklep.klienci (email,numer_telefonu)
+VALUES ('klient A','111 111 112'),
+('klient b','111 111 113'),
+('klient c','111 111 114'),
+('klient d','111 111 115'),
+('klient e','111 111 116'),
+('klient f','111 111 117'),
+('klient g','111 111 118'),
+('klient h','111 111 119'),
+('klient i','111 111 110'),
+('klient j','111 111 121');
+
+
+UPDATE zamowienia SET id_klienta = 1 WHERE id_zamowienia = 1;
+UPDATE zamowienia SET id_klienta = 1 WHERE id_zamowienia = 2;
+UPDATE zamowienia SET id_klienta = 1 WHERE id_zamowienia = 3;
+UPDATE zamowienia SET id_klienta = 2 WHERE id_zamowienia = 4;
+UPDATE zamowienia SET id_klienta = 3 WHERE id_zamowienia = 5;
+UPDATE zamowienia SET id_klienta = 6 WHERE id_zamowienia = 6;
+UPDATE zamowienia SET id_klienta = 6 WHERE id_zamowienia = 7;
+UPDATE zamowienia SET id_klienta = 8 WHERE id_zamowienia = 8;
+UPDATE zamowienia SET id_klienta = 9 WHERE id_zamowienia = 9;
+UPDATE zamowienia SET id_klienta = 10 WHERE id_zamowienia = 10;
+
+
+
+--e) 
+SELECT email, numer_telefonu, nazwa_produktu, liczba_sztuk, (liczba_sztuk * cena) AS wartość_zamówienia FROM zamowienia INNER JOIN klienci ON zamowienia.id_klienta = klienci.id_klienta INNER JOIN produkty ON produkty.id_produktu = zamowienia.id_produktu;
+
+--f) 
+SELECT CONCAT('NAJCZĘŚCIEJ ZAMAWIAJĄCY: ', email, ' telefon: ',numer_telefonu, ' całkowita kwota zamówień: ', cena) FROM (SELECT email,numer_telefonu,SUM(cena*liczba_sztuk) AS cena FROM zamowienia INNER JOIN klienci ON zamowienia.id_klienta=klienci.id_klienta INNER JOIN produkty ON produkty.id_produktu=zamowienia.id_produktu GROUP BY zamowienia.id_klienta,email,numer_telefonu ORDER BY COUNT(zamowienia.id_klienta) DESC LIMIT 1) as Najczestszy UNION SELECT CONCAT('NAJRZADZIEJ ZAMAWIAJĄCY: ', email, ' telefon: ',numer_telefonu, ' całkowita kwota zamówień: ', cena) FROM (SELECT email,numer_telefonu,SUM(cena*liczba_sztuk) AS cena FROM zamowienia INNER JOIN klienci ON zamowienia.id_klienta=klienci.id_klienta INNER JOIN produkty ON produkty.id_produktu = zamowienia.id_produktu GROUP BY zamowienia.id_klienta,email,numer_telefonu ORDER BY COUNT(zamowienia.id_klienta) LIMIT 1) AS najrzadziej;
+
+--g) 
+DELETE FROM produkty WHERE id_produktu IN (SELECT produkty.id_produktu FROM produkty WHERE id_produktu NOT IN (SELECT id_produktu FROM zamowienia));
+
+
+--13.
+
+--a) 
+CREATE TABLE numer(liczba INT, CONSTRAINT valid_number CHECK (liczba <= 999 AND liczba >= 100));
+--b) 
+CREATE SEQUENCE liczba_seq INCREMENT 5 MINVALUE 100 MAXVALUE 125 CYCLE;
+--c) 
+INSERT INTO numer(liczba) 
+VALUES(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq')),
+(NEXTVAL('liczba_seq'));
+
+--d) 
+ALTER SEQUENCE liczba_seq INCREMENT BY 6;
+
+--e) 
+SELECT CURRVAL('liczba_seq');
+SELECT NEXTVAL('liczba_seq');
+
+--f) 
+DROP SEQUENCE liczba_seq;
+
+--14.
+
+--a) 
+SELECT * FROM pg_catalog.pg_user;
+
+--b) 
+CREATE USER Superuser290460 WITH SUPERUSER;
+CREATE USER guest290460;
+GRANT SELECT ON ALL TABLES IN SCHEMA firma TO guest290460;
+SELECT * FROM pg_catalog.pg_user;
+
+--c) 
+ALTER USER Superuser290460 RENAME TO student;
+ALTER USER student WITH NOSUPERUSER;
+GRANT SELECT ON ALL TABLES IN SCHEMA firma TO student;
+
+
+
+--15.
+
+--a)
+BEGIN;
+UPDATE produkty SET cena = cena + 10 WHERE 1=1;
+COMMIT;
+
+--b)
+BEGIN;
+UPDATE produkty SET cena = cena + 0.1*cena WHERE id_produktu = 3;
+SAVEPOINT S1;
+UPDATE zamowienia SET liczba_sztuk = liczba_sztuk + 0.25*liczba_sztuk WHERE 1=1;
+SAVEPOINT S2;
+DELETE FROM klienci WHERE id_klienta = (SELECT zamowienia.id_klienta FROM klienci INNER JOIN zamowienia ON zamowienia.id_klienta = klienci.id_klienta GROUP BY zamowienia.id_klienta ORDER BY zamowienia.id_klienta DESC LIMIT 1);
+ROLLBACK TO S2;
+ROLLBACK;
+COMMIT;
+
+--c) 
+CREATE OR REPLACE FUNCTION procentowy_udzial()
+RETURNS TABLE (procent text) AS
+$func$
+BEGIN
+	RETURN QUERY
+	SELECT
+	CONCAT( produkty.nazwa_produktu, ' - ', (COUNT(zamowienia.id_produktu)::decimal / (SELECT COUNT(id_zamowienia) FROM zamowienia)::decimal * 100)::integer, '%', ' wszystkich zamówień')
+	FROM
+	produkty INNER JOIN zamowienia ON produkty.id_produktu = zamowienia.id_produktu
+	GROUP BY 
+	produkty.nazwa_produktu;
+END
+$func$ LANGUAGE plpgsql;
+
+
+
+
+
+
