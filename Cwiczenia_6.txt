@@ -1,0 +1,60 @@
+1. Kolory zmienione przy pomocy "Layer Styling" (6_1.png)
+
+
+
+2. Layer -> Add Layer -> virtual layer; 
+w polu query:
+select * from trees where VEGDESC = "<odpowiednio dla warstwy>";
+wynik w pliku 6_2.png
+
+
+
+3.
+tworzymy nową warstwę z iloczynu regionu i warstwy railroads
+Vector -> Geoprocessing Tools -> Intersection 
+
+następnie w Field Calculator obliczamy sumę długości wszystkich segmentów (plik 6_3.png)
+
+
+
+4.  na warstwie: RMB -> Filter ; w polu filtra: "USE" like 'Military'
+następnie w Field Calculator: mean(ELEV) [wynik: 593.25 (plik 6_3_1.png)] oraz count(ELEV) (wynik: 8)
+
+żeby usunąć wybrane lotniska najpierw wyłączamy filtr z warstwy, następnie w Attribute Table filtrujemy i zaznaczamy rekordy na podstawie wyrażenia 
+
+("ELEV">1400) AND ("USE" ILIKE '%Military%')
+
+jak widać (plik 6_3_2.png) jest tylko jedno takie lotnisko
+aby je usunąć włączamy edycję warstwy i klikamy "Delete selected features" 
+
+
+
+5. Najpierw filtrujemy warstwę regions wyrażeniem 
+
+"NAME_2" LIKE 'Bristol Bay'"
+
+i tworzymy nową warstwę użytym wcześniej narzędziem Intersection wybierając warstwy popp i regions
+Z narzędzia Basic statisticcs for fields odczytujemy pole COUNT (wynik: 11, plik 6_5_1.png)
+Następnie na postawie warstwy rivers tworzymy bufor o promieniu 100km i przycinamy warstwę z poprzedniego podpunktu (plik 6_5_2.png)
+
+
+
+6. używając narzędzia Vector -> Vector Analysis -> Line intersections znajdujemy punkty przecięcia dwóch warstw (6_6.png)
+jest 8 takich punktów
+
+
+
+7. Używamy narzędzia intersections wprowadzając dwa razy warstwę railroads 
+otrzymanych punktów jest 164 (6_7.png)
+
+
+
+8. 
+wykonujemy bufory dla lotnisk i kolei o promieniach odpowiednio 100 km i 50 km, a następnie odejmujemy bufor kolei od bufora lotnisk (6_8.png)
+
+
+
+9. upraszczamy warstwę narzędziem simplify, a następnie używamy Extract vertices na obu warstwach i z właściwości warstw odczytujemy liczbę rekordów (6_9.png)
+
+warstwa oryginalna - 7469
+warstwa uproszczona - 1026
